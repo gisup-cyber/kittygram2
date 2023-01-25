@@ -27,6 +27,14 @@ class Cat(models.Model):
         User, related_name='cats', on_delete=models.CASCADE)
     achievements = models.ManyToManyField(Achievement, through='AchievementCat')
 
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=['name', 'owner', 'birth_year'],
+                name='unique_name_owner_birth_year'
+            )
+        ]
+
     def __str__(self):
         return self.name
 
