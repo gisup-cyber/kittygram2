@@ -27,12 +27,22 @@ class CatSerializer(serializers.ModelSerializer):
     achievements = AchievementSerializer(many=True, required=False)
     color = serializers.ChoiceField(choices=CHOICES)
     age = serializers.SerializerMethodField()
+    owner = serializers.PrimaryKeyRelatedField(
+        read_only=True, default=serializers.CurrentUserDefault())
     
     class Meta:
         model = Cat
         fields = ('id', 'name', 'color', 'birth_year', 'achievements', 'owner',
                   'age')
-        read_only_fields = ('owner',)
+        # read_only_fields = ('owner',)
+
+        validators = [
+            UniqueTogetherValidator(
+                queryset=Cat.objects.all(),
+                fields=('name', 'owner', 'birth_year'),
+                message='Нельзя дублировать котиков!'
+            )
+        ]
 
     def validate_birth_year(self, value):
         year = dt.date.today().year
